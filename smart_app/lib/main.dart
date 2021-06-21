@@ -1,6 +1,7 @@
-import 'dart:html';
+// import 'dart:html';
 
 import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 void main() {
   runApp(MyApp());
@@ -55,15 +56,48 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          children: <Widget>[
-            Image.asset('assets/login_logo.png'),
-            Text("智慧工地監測系統"),
-            Text("Monitoring System")
-          ],
-        ),
-      ),
+      body: WebView(
+        initialUrl: "https://smartapptest.kingsu.com.tw/index/wapp?sendtoken=637009530995528690",
+        javascriptMode: JavascriptMode.unrestricted,
+      )
     );
+    // bool _checkbox = false;
+    //
+    // return Scaffold(
+    //     body: Center(
+    //   child: Column(
+    //     children: <Widget>[
+    //       Image.asset('assets/login_logo.png'),
+    //       Text("智慧工地監測系統"),
+    //       Text("Monitoring System"),
+    //       TextField(
+    //           decoration: InputDecoration(
+    //               border: OutlineInputBorder(),
+    //               labelText: '帳號',
+    //               hintText: '帳號')),
+    //       TextField(
+    //           decoration: InputDecoration(
+    //               border: OutlineInputBorder(),
+    //               labelText: '密碼',
+    //               hintText: '密碼')),
+    //       Checkbox(
+    //         value: _checkbox,
+    //         onChanged: (value) {
+    //           setState(() {
+    //             _checkbox = !_checkbox;
+    //           });
+    //         },
+    //       ),
+    //       TextButton(
+    //         style: TextButton.styleFrom(
+    //           primary: Colors.blue,
+    //         ),
+    //         onPressed: () {},
+    //         child: Text('登入'),
+    //       ),
+    //       Text("金粟科技工程顧問有限公司 開發"),
+    //     ],
+    //   ),
+    // ));
   }
 }
