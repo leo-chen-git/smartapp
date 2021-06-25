@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "502771997545",
+    "project_id": "smart-app-2266",
+    "storage_bucket": "smart-app-2266.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:502771997545:android:293a86111065a150c0fbf8",
+        "android_client_info": {
+          "package_name": "com.kingsu.jobsitemonitor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "502771997545-nku442sdqtp044uipkmtlhjli701i9qk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDICXhzGeLqFMm2wkkyFgANSOf_nAA_ZkI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "502771997545-nku442sdqtp044uipkmtlhjli701i9qk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:502771997545:android:e6d66c558ec699fdc0fbf8",
+        "android_client_info": {
+          "package_name": "com.kingsu.smart_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "502771997545-nku442sdqtp044uipkmtlhjli701i9qk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDICXhzGeLqFMm2wkkyFgANSOf_nAA_ZkI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "502771997545-nku442sdqtp044uipkmtlhjli701i9qk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
