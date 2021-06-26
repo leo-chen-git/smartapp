@@ -1,10 +1,47 @@
 // @Dart=2.9
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-void main() {
+
+
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  // Set the background messaging handler early on, as a named top-level function
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  /// Create an Android Notification Channel.
+  /// 這裡有多使用套件: flutter_local_notifications: ^3.0.3
+  /// We use this channel in the `AndroidManifest.xml` file to override the
+  /// default FCM channel to enable heads up notifications.
+  // await flutterLocalNotificationsPlugin
+  //     .resolvePlatformSpecificImplementation<
+  // AndroidFlutterLocalNotificationsPlugin>()
+  //     ?.createNotificationChannel(channel);
+
+  /// Update the iOS foreground notification presentation options to allow
+  /// heads up notifications.
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+  alert: true,
+  badge: true,
+  sound: true,
+  );
+
+
+  print("before run app");
   runApp(MyApp());
 }
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+  print("Handling a background message ${message.messageId}");
+}
+
+
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -27,6 +64,7 @@ class MyApp extends StatelessWidget {
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
+
 }
 
 class MyHomePage extends StatefulWidget {
@@ -41,13 +79,17 @@ class MyHomePage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  final String title;
 
+
+  final String title;
   @override
   _MyHomePageState createState() => _MyHomePageState();
+
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late FirebaseMessaging messaging;
+
   int _counter = 0;
 
   void _incrementCounter() {
@@ -62,65 +104,31 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    messaging = FirebaseMessaging.instance;
+    print("_MyHomePageState initState");
+
+    messaging.getToken().then((value) {
+      print(value);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('智慧工地管理系統'),
       ),
       body: WebView(
-        initialUrl: 'https://smartapptest.kingsu.com.tw/index/wapp?sendtoken=sendtoken',
-        javascriptMode: JavascriptMode.unrestricted
+          initialUrl: 'https://smartapptest.kingsu.com.tw/index/wapp?sendtoken=sendtoken',
+          javascriptMode: JavascriptMode.unrestricted
       ),
     );
-
-
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    // return Scaffold(
-    //   appBar: AppBar(
-    //     // Here we take the value from the MyHomePage object that was created by
-    //     // the App.build method, and use it to set our appbar title.
-    //     title: Text(widget.title),
-    //   ),
-    //   body: Center(
-    //     // Center is a layout widget. It takes a single child and positions it
-    //     // in the middle of the parent.
-    //     child: Column(
-    //       // Column is also a layout widget. It takes a list of children and
-    //       // arranges them vertically. By default, it sizes itself to fit its
-    //       // children horizontally, and tries to be as tall as its parent.
-    //       //
-    //       // Invoke "debug painting" (press "p" in the console, choose the
-    //       // "Toggle Debug Paint" action from the Flutter Inspector in Android
-    //       // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-    //       // to see the wireframe for each widget.
-    //       //
-    //       // Column has various properties to control how it sizes itself and
-    //       // how it positions its children. Here we use mainAxisAlignment to
-    //       // center the children vertically; the main axis here is the vertical
-    //       // axis because Columns are vertical (the cross axis would be
-    //       // horizontal).
-    //       mainAxisAlignment: MainAxisAlignment.center,
-    //       children: <Widget>[
-    //         Text(
-    //           'You have pushed the button this many times:',
-    //         ),
-    //         Text(
-    //           '$_counter',
-    //           style: Theme.of(context).textTheme.headline4,
-    //         ),
-    //       ],
-    //     ),
-    //   ),
-    //   floatingActionButton: FloatingActionButton(
-    //     onPressed: _incrementCounter,
-    //     tooltip: 'Increment',
-    //     child: Icon(Icons.add),
-    //   ), // This trailing comma makes auto-formatting nicer for build methods.
-    // );
   }
 }
+
+
+
+
+
