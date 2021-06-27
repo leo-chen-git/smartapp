@@ -3,9 +3,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
-
+String fcmToken = "";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,8 +30,31 @@ void main() async {
   sound: true,
   );
 
+  late FirebaseMessaging messaging;
 
-  print("before run app");
+  _saveFCMToken(String token) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("fcmToken", token);
+  }
+
+  _getFCMToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getString("fcmToken") != null) {
+      fcmToken = prefs.getString("fcmToken")!;
+    }
+  }
+
+  _getFCMToken();
+  messaging = FirebaseMessaging.instance;
+
+  messaging.getToken().then((value) {
+    if (value != null) {
+      _saveFCMToken(value);
+      fcmToken = value;
+    }
+    print("fcm token:"+value!);
+  });
+
   runApp(MyApp());
 }
 
@@ -79,8 +103,6 @@ class MyHomePage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-
-
   final String title;
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -88,7 +110,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late FirebaseMessaging messaging;
+  // late FirebaseMessaging messaging;
+  // String fcmToken = "";
 
   int _counter = 0;
 
@@ -103,25 +126,23 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+
   @override
   void initState() {
     super.initState();
-    messaging = FirebaseMessaging.instance;
-    print("_MyHomePageState initState");
-
-    messaging.getToken().then((value) {
-      print(value);
-    });
   }
+
+
 
   @override
   Widget build(BuildContext context) {
+    print("test build");
     return Scaffold(
       appBar: AppBar(
         title: Text('智慧工地管理系統'),
       ),
       body: WebView(
-          initialUrl: 'https://smartapptest.kingsu.com.tw/index/wapp?sendtoken=sendtoken',
+          initialUrl: 'https://smartapptest.kingsu.com.tw/index/wapp?sendtoken=$fcmToken',
           javascriptMode: JavascriptMode.unrestricted
       ),
     );
