@@ -40,7 +40,7 @@ void main() async {
   print("checkPermissionStatus:"+ checkPermissionStatus.toString());
   print("isOpened:"+ isOpened.toString());
   print("isShown:"+ isShown.toString());
-  
+
   late FirebaseMessaging messaging;
 
   _saveFCMToken(String token) async {
