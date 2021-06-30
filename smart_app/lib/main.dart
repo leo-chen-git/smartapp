@@ -53,9 +53,8 @@ void main() async {
       fcmToken = value;
     }
     print("fcm token:"+value!);
+    runApp(MyApp());
   });
-
-  runApp(MyApp());
 }
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -136,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print("test build");
+    print("test build" + 'https://smartapptest.kingsu.com.tw/index/wapp?sendtoken=$fcmToken');
     return Scaffold(
       body: WebView(
           initialUrl: 'https://smartapptest.kingsu.com.tw/index/wapp?sendtoken=$fcmToken',
