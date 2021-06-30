@@ -4,7 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
 String fcmToken = "";
 
@@ -135,17 +135,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print("test build" + 'https://smartapptest.kingsu.com.tw/index/wapp?sendtoken=$fcmToken');
+    print("test build: " + 'https://smartapptest.kingsu.com.tw/index/wapp?sendtoken=$fcmToken');
     return Scaffold(
-      body: WebView(
-          initialUrl: 'https://smartapptest.kingsu.com.tw/index/wapp?sendtoken=$fcmToken',
-          javascriptMode: JavascriptMode.unrestricted
+      body: WebviewScaffold(
+          url: 'https://smartapptest.kingsu.com.tw/index/wapp?sendtoken=$fcmToken',
+          withZoom: true,
+          hidden: true,
+          geolocationEnabled: true,
+          withJavascript: true,
       ),
     );
   }
 }
-
-
-
 
 
