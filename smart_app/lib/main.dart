@@ -138,9 +138,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     print("test build");
     return Scaffold(
-      appBar: AppBar(
-        title: Text('智慧工地管理系統'),
-      ),
       body: WebView(
           initialUrl: 'https://smartapptest.kingsu.com.tw/index/wapp?sendtoken=$fcmToken',
           javascriptMode: JavascriptMode.unrestricted
