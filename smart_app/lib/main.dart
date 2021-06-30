@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:location_permissions/location_permissions.dart';
 
 String fcmToken = "";
 
@@ -30,6 +31,16 @@ void main() async {
   sound: true,
   );
 
+  // requesting permission
+  PermissionStatus requestPermissions = await LocationPermissions().requestPermissions();
+  PermissionStatus checkPermissionStatus = await LocationPermissions().checkPermissionStatus();
+  bool isOpened = await LocationPermissions().openAppSettings();
+  bool isShown = await LocationPermissions().shouldShowRequestPermissionRationale();
+  print("PermissionStatus:"+ requestPermissions.toString());
+  print("checkPermissionStatus:"+ checkPermissionStatus.toString());
+  print("isOpened:"+ isOpened.toString());
+  print("isShown:"+ isShown.toString());
+  
   late FirebaseMessaging messaging;
 
   _saveFCMToken(String token) async {
