@@ -34,12 +34,8 @@ void main() async {
   // requesting permission
   PermissionStatus requestPermissions = await LocationPermissions().requestPermissions();
   PermissionStatus checkPermissionStatus = await LocationPermissions().checkPermissionStatus();
-  bool isOpened = await LocationPermissions().openAppSettings();
-  bool isShown = await LocationPermissions().shouldShowRequestPermissionRationale();
   print("PermissionStatus:"+ requestPermissions.toString());
   print("checkPermissionStatus:"+ checkPermissionStatus.toString());
-  print("isOpened:"+ isOpened.toString());
-  print("isShown:"+ isShown.toString());
 
   late FirebaseMessaging messaging;
 
