@@ -33,6 +33,8 @@ PODS:
     - GoogleUtilities/Reachability (~> 7.4)
     - GoogleUtilities/UserDefaults (~> 7.4)
   - Flutter (1.0.0)
+  - flutter_webview_plugin (0.0.1):
+    - Flutter
   - GoogleDataTransport (9.0.1):
     - GoogleUtilities/Environment (~> 7.2)
     - nanopb (~> 2.30908.0)
@@ -54,6 +56,8 @@ PODS:
     - GoogleUtilities/Logger
   - GoogleUtilities/UserDefaults (7.4.3):
     - GoogleUtilities/Logger
+  - location (0.0.1):
+    - Flutter
   - nanopb (2.30908.0):
     - nanopb/decode (= 2.30908.0)
     - nanopb/encode (= 2.30908.0)
@@ -69,6 +73,8 @@ DEPENDENCIES:
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
+  - flutter_webview_plugin (from `.symlinks/plugins/flutter_webview_plugin/ios`)
+  - location (from `.symlinks/plugins/location/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
   - webview_flutter (from `.symlinks/plugins/webview_flutter/ios`)
 
@@ -91,6 +97,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_messaging/ios"
   Flutter:
     :path: Flutter
+  flutter_webview_plugin:
+    :path: ".symlinks/plugins/flutter_webview_plugin/ios"
+  location:
+    :path: ".symlinks/plugins/location/ios"
   shared_preferences:
     :path: ".symlinks/plugins/shared_preferences/ios"
   webview_flutter:
@@ -105,13 +115,15 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 9394ea09e242bf0816e95ac30e56a9214cc86ced
   FirebaseMessaging: 1a33b4af3c8042ed6ddacb6c031894af2064bfab
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
+  flutter_webview_plugin: ed9e8a6a96baf0c867e90e1bce2673913eeac694
   GoogleDataTransport: 04c3e9a480bbcaa2ec3f5d27f1cdeb6a92f20c8d
   GoogleUtilities: 45dbb24a7f351d69d0a601482b39ad6c32e30dab
+  location: 3a2eed4dd2fab25e7b7baf2a9efefe82b512d740
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
   webview_flutter: 3603125dfd3bcbc9d8d418c3f80aeecf331c068b
 
-PODFILE CHECKSUM: 3efef3e4c4241ddf19165efb8229df7447127bfd
+PODFILE CHECKSUM: a56032f44f4d40b0a901ccf2b5c27cfd5e953d53
 
 COCOAPODS: 1.10.1

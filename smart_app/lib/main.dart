@@ -1,61 +1,108 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:location/location.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  // Set the background messaging handler early on, as a named top-level function
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  /// Update the iOS foreground notification presentation options to allow
-  /// heads up notifications.
-  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
-
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  var fcmToken = prefs.getString("fcmToken");
-
-  if (fcmToken == null) {
-    final token = await FirebaseMessaging.instance.getToken();
-    if (token != null) {
-      prefs.setString("fcmToken", token);
-    }
-    fcmToken = token;
-  }
-
-  runApp(MyApp(fcmToken ?? ''));
-}
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // If you're going to use other Firebase services in the background, such as Firestore,
-  // make sure you call `initializeApp` before using other Firebase services.
-  await Firebase.initializeApp();
-  print("Handling a background message ${message.messageId}");
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final String fcmToken;
-
-  MyApp(this.fcmToken, {Key? key}) : super(key: key);
+  MyApp({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    Notification.instance.setContext(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: WebView(
-          initialUrl:
-              'https://smartapp.kingsu.com.tw/index/wapp?sendtoken=$fcmToken',
-          javascriptMode: JavascriptMode.unrestricted,
+      home: SafeArea(
+        child: Scaffold(
+          body: MyHomePage(),
         ),
       ),
     );
+  }
+}
+
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
+  static final location = Location();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<PermissionStatus>(
+        future: location.hasPermission(),
+        builder: (context, snapshot) {
+          print('permission: ${snapshot.data}');
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          final status = snapshot.data!;
+          final permit = status == PermissionStatus.granted ||
+              status == PermissionStatus.grantedLimited;
+
+          return permit ? _webView() : _request();
+        });
+  }
+
+  Widget _webView() {
+    print('start web view');
+
+    return WebView(
+      initialUrl: 'https://smartapp.kingsu.com.tw/index/wapp',
+      javascriptMode: JavascriptMode.unrestricted,
+    );
+  }
+
+  Widget _request() {
+    print('start request permission');
+
+    return FutureBuilder(
+        future: Future.wait([
+          location.requestPermission(),
+          FirebaseMessaging.instance.requestPermission(),
+        ]),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          return _webView();
+        });
+  }
+}
+
+class Notification {
+  static final Notification instance = Notification._();
+
+  BuildContext? context;
+
+  void setContext(BuildContext context) {
+    if (this.context == null) {
+      this.context = context;
+    }
+  }
+
+  Notification._() {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (message.notification != null) {
+        final messages = <String>[
+          message.notification?.title ?? '',
+          message.notification?.body ?? '',
+        ].where((e) => e != '').map<Widget>((e) => Text(e));
+
+        if (messages.isEmpty) return;
+
+        final snackBar = SnackBar(content: Column(children: messages.toList()));
+
+        ScaffoldMessenger.of(context!).showSnackBar(snackBar);
+      }
+    });
   }
 }
