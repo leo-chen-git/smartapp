@@ -2,11 +2,39 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+
+String fcmToken = "";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  late FirebaseMessaging messaging;
+
+  _saveFCMToken(String token) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("fcmToken", token);
+  }
+
+  _getFCMToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getString("fcmToken") != null) {
+      fcmToken = prefs.getString("fcmToken")!;
+    }
+  }
+
+  _getFCMToken();
+  messaging = FirebaseMessaging.instance;
+
+  messaging.getToken().then((value) {
+    if (value != null) {
+      _saveFCMToken(value);
+      fcmToken = value;
+    }
+    print("fcm token:"+value!);
+  });
   runApp(MyApp());
 }
 
@@ -55,7 +83,7 @@ class MyHomePage extends StatelessWidget {
     print('start web view');
 
     return WebView(
-      initialUrl: 'https://smartapp.kingsu.com.tw/index/wapp',
+      initialUrl: 'https://smartapp.kingsu.com.tw/index/wapp?sendtoken=$fcmToken',
       javascriptMode: JavascriptMode.unrestricted,
     );
   }
