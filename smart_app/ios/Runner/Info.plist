@@ -30,7 +30,7 @@
 		<true/>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Need Location</string>
+	<string>需要讓使用廠商了解員工打卡當下位置，以方便管理員工進度</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
