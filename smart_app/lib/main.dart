@@ -5,36 +5,20 @@ import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-String fcmToken = "";
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  late FirebaseMessaging messaging;
+  await Prefs.instance.initialize();
 
-  _saveFCMToken(String token) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString("fcmToken", token);
+  if (Prefs.instance.fcmToken.isEmpty) {
+    final token = await FirebaseMessaging.instance.getToken();
+    if (token != null) {
+      Prefs.instance.fcmToken = token;
+    }
+    print("request fcm token: ${token ?? ''}");
   }
 
-  _getFCMToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getString("fcmToken") != null) {
-      fcmToken = prefs.getString("fcmToken")!;
-    }
-  }
-
-  _getFCMToken();
-  messaging = FirebaseMessaging.instance;
-
-  messaging.getToken().then((value) {
-    if (value != null) {
-      _saveFCMToken(value);
-      fcmToken = value;
-    }
-    print("fcm token:"+value!);
-  });
   runApp(MyApp());
 }
 
@@ -80,10 +64,12 @@ class MyHomePage extends StatelessWidget {
   }
 
   Widget _webView() {
-    print('start web view');
+    const domain = 'https://smartapp.kingsu.com.tw';
+    const path = '/index/wapp';
+    final query = 'sendtoken=${Prefs.instance.fcmToken}';
 
     return WebView(
-      initialUrl: 'https://smartapp.kingsu.com.tw/index/wapp?sendtoken=$fcmToken',
+      initialUrl: '$domain$path?$query',
       javascriptMode: JavascriptMode.unrestricted,
     );
   }
@@ -133,4 +119,19 @@ class Notification {
       }
     });
   }
+}
+
+class Prefs {
+  static final instance = Prefs._();
+
+  late SharedPreferences prefs;
+
+  Prefs._();
+
+  Future<void> initialize() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
+  String get fcmToken => prefs.getString("fcmToken") ?? '';
+  set fcmToken(String token) => prefs.setString("fcmToken", token);
 }

@@ -8,8 +8,8 @@
       "name": "smart_app",
       "request": "launch",
       "type": "dart",
-      "program": "lib/main.dart",
-      "args": ["--release"]
+      "program": "lib/main.dart"
+      // "args": ["--release"]
     }
   ]
 }
