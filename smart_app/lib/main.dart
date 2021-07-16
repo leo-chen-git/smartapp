@@ -11,14 +11,6 @@ void main() async {
 
   await Prefs.instance.initialize();
 
-  if (Prefs.instance.fcmToken.isEmpty) {
-    final token = await FirebaseMessaging.instance.getToken();
-    if (token != null) {
-      Prefs.instance.fcmToken = token;
-    }
-    print("request fcm token: ${token ?? ''}");
-  }
-
   runApp(MyApp());
 }
 
@@ -50,7 +42,6 @@ class MyHomePage extends StatelessWidget {
     return FutureBuilder<PermissionStatus>(
         future: location.hasPermission(),
         builder: (context, snapshot) {
-          print('permission: ${snapshot.data}');
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
           }
@@ -59,7 +50,15 @@ class MyHomePage extends StatelessWidget {
           final permit = status == PermissionStatus.granted ||
               status == PermissionStatus.grantedLimited;
 
-          return permit ? _webView() : _request();
+          if (!permit) {
+            return _requestPermit();
+          }
+
+          if (Prefs.instance.fcmToken.isEmpty) {
+            return _requestToken();
+          }
+
+          return _webView();
         });
   }
 
@@ -74,7 +73,7 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  Widget _request() {
+  Widget _requestPermit() {
     print('start request permission');
 
     return FutureBuilder(
@@ -86,6 +85,25 @@ class MyHomePage extends StatelessWidget {
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
           }
+          print('permission: ${snapshot.data}');
+
+          return _requestToken();
+        });
+  }
+
+  Widget _requestToken() {
+    print('start request token');
+
+    return FutureBuilder<String?>(
+        future: FirebaseMessaging.instance.getToken(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          final token = snapshot.data ?? '';
+          Prefs.instance.fcmToken = token;
+          print("request fcm token: $token");
 
           return _webView();
         });
