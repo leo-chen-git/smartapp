@@ -23,13 +23,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  webview_flutter: ^2.0.9
+  webview_flutter:
+    path: plugins/webview_flutter
   firebase_core: "^1.3.0"
   firebase_messaging: "^10.0.2"
   shared_preferences: "2.0.6"
-
+  location_permissions: ^3.0.0
   flutter_webview_plugin: ^0.4.0
   location: ^4.3.0
+  localstorage: ^4.0.0+1
 
 dev_dependencies:
   flutter_test:
