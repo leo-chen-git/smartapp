@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
-import 'package:location_permissions/location_permissions.dart';
-
+import 'package:location_permissions/location_permissions.dart' as l;
+import 'package:camera/camera.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 String fcmToken = "";
 
@@ -33,11 +34,20 @@ void main() async {
   );
 
   // requesting permission
-  PermissionStatus requestPermissions = await LocationPermissions().requestPermissions();
-  PermissionStatus checkPermissionStatus = await LocationPermissions().checkPermissionStatus();
+  l.PermissionStatus requestPermissions = await l.LocationPermissions().requestPermissions();
+  l.PermissionStatus checkPermissionStatus = await l.LocationPermissions().checkPermissionStatus();
   print("PermissionStatus:"+ requestPermissions.toString());
   print("checkPermissionStatus:"+ checkPermissionStatus.toString());
 
+  WidgetsFlutterBinding.ensureInitialized();
+// Obtain a list of the available cameras on the device.
+  Permission.camera.request();
+
+  final cameras = await availableCameras();
+  print("cameras.isEmpty:"+ cameras.isEmpty.toString());
+
+// Get a specific camera from the list of available cameras.
+  final firstCamera = cameras.first;
   late FirebaseMessaging messaging;
 
   _saveFCMToken(String token) async {
