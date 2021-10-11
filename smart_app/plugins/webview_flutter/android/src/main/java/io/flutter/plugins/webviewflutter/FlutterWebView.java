@@ -34,6 +34,9 @@ import io.flutter.plugin.platform.PlatformView;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import android.os.Bundle;
+import java.io.File;
+import android.os.Environment;
 
 public class FlutterWebView implements PlatformView, MethodCallHandler {
   private static final String TAG = "FlutterWebView";
@@ -50,6 +53,8 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   private ValueCallback<Uri[]> uploadMessageAboveL;
   private final static int FILE_CHOOSER_RESULT_CODE = 10000;
   public static final int RESULT_OK = -1;
+  private int count = 0;
+  Uri uri = null;
 
   // Verifies that a url opened by `Window.open` has a secure url.
   private class FlutterWebChromeClient extends WebChromeClient {
@@ -474,12 +479,31 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
 
   private void openImageChooserActivity() {
     Log.v(TAG, "openImageChooserActivity");
-    Intent intent1 = new Intent(Intent.ACTION_PICK, null);
-    intent1.setDataAndType(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+    Intent galleryintent = new Intent(Intent.ACTION_PICK, null);
+    galleryintent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+
+    count++; //this is an int
+    String imageFileName = "JPEG_" + count; //make a better file name
+    try{
+      File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+      File image = File.createTempFile(imageFileName,
+              ".jpg",
+              storageDir
+      );
+      uri = Uri.fromFile(image);
+    } catch (Exception e) {
+      Log.v(TAG, e.getMessage());
+    }
+
+    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+
     Intent chooser = new Intent(Intent.ACTION_CHOOSER);
     chooser.putExtra(Intent.EXTRA_TITLE, "選擇圖片");
-    chooser.putExtra(Intent.EXTRA_INTENT,intent1);
+    chooser.putExtra(Intent.EXTRA_INTENT, galleryintent);
+
+    Intent[] intentArray = { cameraIntent };
+    chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
 
     if (WebViewFlutterPlugin.activity != null){
       WebViewFlutterPlugin.activity.startActivityForResult(chooser, FILE_CHOOSER_RESULT_CODE);
@@ -506,6 +530,14 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
 
   @TargetApi(Build.VERSION_CODES.LOLLIPOP)
   private void onActivityResultAboveL(int requestCode, int resultCode, Intent intent) {
+    Log.v(TAG, "onActivityResultAboveL requestCode " + requestCode);
+    Log.v(TAG, "onActivityResultAboveL resultCode " + resultCode);
+    Log.v(TAG, "onActivityResultAboveL intent " + intent);
+    Log.v(TAG, "onActivityResultAboveL intent " + (null == intent));
+    Log.v(TAG, "onActivityResultAboveL intent.getData() " + intent.getData());
+    Log.v(TAG, "onActivityResultAboveL intent.getData() " + (null == intent.getData()));
+    Log.v(TAG, "uri  " + uri);
+
     if (requestCode != FILE_CHOOSER_RESULT_CODE || uploadMessageAboveL == null)
     {
       return;
@@ -513,18 +545,29 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     Uri[] results = null;
     if (resultCode == Activity.RESULT_OK) {
       if (intent != null) {
-        String dataString = intent.getDataString();
-        ClipData clipData = intent.getClipData();
-        if (clipData != null) {
-          results = new Uri[clipData.getItemCount()];
-          for (int i = 0; i < clipData.getItemCount(); i++) {
-            ClipData.Item item = clipData.getItemAt(i);
-            results[i] = item.getUri();
-          }
+        // camera
+        Bundle bundle = intent.getExtras();
+        if (null == intent.getData()) {
+          Log.v(TAG, "uri  " + uri);
+          results = new Uri[]{uri};
         }
-        if (dataString != null)
-        {
-          results = new Uri[]{Uri.parse(dataString)};
+        // gallery
+        else {
+          String dataString = intent.getDataString();
+          ClipData clipData = intent.getClipData();
+          Log.v(TAG, "dataString " + dataString);
+          Log.v(TAG, "clipData " + clipData);
+          if (clipData != null) {
+            results = new Uri[clipData.getItemCount()];
+            for (int i = 0; i < clipData.getItemCount(); i++) {
+              ClipData.Item item = clipData.getItemAt(i);
+              results[i] = item.getUri();
+            }
+          }
+          if (dataString != null)
+          {
+            results = new Uri[]{Uri.parse(dataString)};
+          }
         }
       }
     }

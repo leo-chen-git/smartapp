@@ -4,7 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+// import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:location_permissions/location_permissions.dart' as l;
 import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -42,6 +42,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 // Obtain a list of the available cameras on the device.
   Permission.camera.request();
+  Permission.storage.request();
 
   final cameras = await availableCameras();
   print("cameras.isEmpty:"+ cameras.isEmpty.toString());
@@ -155,8 +156,6 @@ class _MyHomePageState extends State<MyHomePage> {
         initialUrl: 'https://smartapp.kingsu.com.tw/index/wapp?sendtoken=$fcmToken',
         javascriptMode: JavascriptMode.unrestricted,
         gestureNavigationEnabled: true,
-
-
       )
       // body: WebviewScaffold(
       //   url: 'https://smartapp.kingsu.com.tw/index/wapp?sendtoken=$fcmToken',
