@@ -36,7 +36,10 @@ import java.util.List;
 import java.util.Map;
 import android.os.Bundle;
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import android.os.Environment;
+import androidx.core.content.FileProvider;
 
 public class FlutterWebView implements PlatformView, MethodCallHandler {
   private static final String TAG = "FlutterWebView";
@@ -53,7 +56,6 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   private ValueCallback<Uri[]> uploadMessageAboveL;
   private final static int FILE_CHOOSER_RESULT_CODE = 10000;
   public static final int RESULT_OK = -1;
-  private int count = 0;
   Uri uri = null;
 
   // Verifies that a url opened by `Window.open` has a secure url.
@@ -138,6 +140,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     DisplayListenerProxy displayListenerProxy = new DisplayListenerProxy();
     DisplayManager displayManager =
         (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+    this.context = context;
     displayListenerProxy.onPreWebViewInitialization(displayManager);
     webView = new InputAwareWebView(context, containerView);
     displayListenerProxy.onPostWebViewInitialization(displayManager);
@@ -482,17 +485,28 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     Intent galleryintent = new Intent(Intent.ACTION_PICK, null);
     galleryintent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
 
-    count++; //this is an int
-    String imageFileName = "JPEG_" + count; //make a better file name
+    uri = null;
+    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+    String imageFileName = "JPEG_" + timeStamp + "_";
     try{
       File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-      File image = File.createTempFile(imageFileName,
-              ".jpg",
-              storageDir
+//      File storageDir = this.imageFile;
+      File image = File.createTempFile(
+              imageFileName,  /* prefix */
+              ".jpg",         /* suffix */
+              storageDir      /* directory */
       );
-      uri = Uri.fromFile(image);
+      Log.v(TAG, "image  " + image);
+//      uri = Uri.fromFile(image);
+      String imageAbsPath = image.getAbsolutePath();
+      Log.v(TAG, "imageAbsPath  " + imageAbsPath);
+      uri = FileProvider.getUriForFile(this.context,
+              "com.kingsu.smart_app.fileprovider",
+              image);
+      Log.v(TAG, "uri  " + uri);
     } catch (Exception e) {
-      Log.v(TAG, e.getMessage());
+      Log.e(TAG, "uri error occurs");
+      Log.e(TAG, e.getMessage());
     }
 
     Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -532,31 +546,29 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   private void onActivityResultAboveL(int requestCode, int resultCode, Intent intent) {
     Log.v(TAG, "onActivityResultAboveL requestCode " + requestCode);
     Log.v(TAG, "onActivityResultAboveL resultCode " + resultCode);
-    Log.v(TAG, "onActivityResultAboveL intent " + intent);
-    Log.v(TAG, "onActivityResultAboveL intent " + (null == intent));
-    Log.v(TAG, "onActivityResultAboveL intent.getData() " + intent.getData());
-    Log.v(TAG, "onActivityResultAboveL intent.getData() " + (null == intent.getData()));
-    Log.v(TAG, "uri  " + uri);
 
-    if (requestCode != FILE_CHOOSER_RESULT_CODE || uploadMessageAboveL == null)
-    {
+
+    if (requestCode != FILE_CHOOSER_RESULT_CODE || uploadMessageAboveL == null) {
+      Log.v(TAG, "requestCode or uploadMessageAboveL is null  ");
       return;
     }
     Uri[] results = null;
     if (resultCode == Activity.RESULT_OK) {
+      Log.v(TAG, "onActivityResultAboveL intent " + intent);
+      Log.v(TAG, "onActivityResultAboveL intent " + (null == intent));
+      Log.v(TAG, "onActivityResultAboveL intent.getData() " + intent.getData());
+      Log.v(TAG, "onActivityResultAboveL intent.getData() " + (null == intent.getData()));
+      Log.v(TAG, "uri  " + uri);
       if (intent != null) {
         // camera
-        Bundle bundle = intent.getExtras();
         if (null == intent.getData()) {
-          Log.v(TAG, "uri  " + uri);
+          Log.v(TAG, "camera uri  " + uri);
           results = new Uri[]{uri};
         }
         // gallery
         else {
           String dataString = intent.getDataString();
           ClipData clipData = intent.getClipData();
-          Log.v(TAG, "dataString " + dataString);
-          Log.v(TAG, "clipData " + clipData);
           if (clipData != null) {
             results = new Uri[clipData.getItemCount()];
             for (int i = 0; i < clipData.getItemCount(); i++) {
@@ -571,6 +583,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         }
       }
     }
+    Log.v(TAG, "uri results  " + results);
     uploadMessageAboveL.onReceiveValue(results);
     uploadMessageAboveL = null;
   }
